@@ -12,7 +12,7 @@
     "build:all": "vite build && electron-builder -mwl",
     "preview": "vite preview"
   },
-  "author": "PokeDesk Team",
+  "author": "CakDoel",
   "license": "MIT",
   "dependencies": {
     "react": "^18.3.1",

@@ -2,6 +2,8 @@
 
 **Virtual Pet Pokémon Desktop App** — Tamagochi-style pet dengan tools produktivitas.
 
+> Dikembangkan oleh **CakDoel**
+
 ![PokeDesk](build/icon.png)
 
 ## ✨ Fitur
