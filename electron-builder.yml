@@ -1,0 +1,52 @@
+appId: com.pokedesk.app
+productName: PokeDesk
+copyright: Copyright © 2026 PokeDesk
+
+directories:
+  output: dist-installer
+  buildResources: build
+
+files:
+  - dist/**/*
+  - electron/**/*
+  - data/**/*
+  - package.json
+
+extraResources:
+  - from: data/
+    to: data/
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: build/icon.ico
+  artifactName: PokeDesk-${version}-Setup.${ext}
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+  installerHeaderIcon: build/icon.ico
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: PokeDesk
+  uninstallDisplayName: PokeDesk
+  license: LICENSE.txt
+
+mac:
+  target:
+    - dmg
+  icon: build/icon.icns
+
+linux:
+  target:
+    - AppImage
+  icon: build/icon.png
+
+publish:
+  provider: github
+  owner: pokedesk
+  repo: pokedesk
