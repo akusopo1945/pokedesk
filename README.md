@@ -15,6 +15,8 @@
 
 ## 🚀 Quick Start
 
+> 📖 **Panduan instalasi lengkap** tersedia di **[INSTALL.md](INSTALL.md)** (termasuk troubleshooting & build cross-platform)
+
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) v18+
