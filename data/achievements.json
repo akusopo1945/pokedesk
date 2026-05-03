@@ -1,0 +1,18 @@
+[
+  { "key": "first_task", "name": "Langkah Pertama", "desc": "Selesaikan task pertamamu", "icon": "⭐", "condition": "tasks_completed >= 1" },
+  { "key": "task_master_10", "name": "Pekerja Rajin", "desc": "Selesaikan 10 task", "icon": "📋", "condition": "tasks_completed >= 10" },
+  { "key": "task_master_50", "name": "Mesin Produktivitas", "desc": "Selesaikan 50 task", "icon": "🏆", "condition": "tasks_completed >= 50" },
+  { "key": "first_note", "name": "Catatan Pertama", "desc": "Buat note pertamamu", "icon": "📝", "condition": "notes_created >= 1" },
+  { "key": "note_collector", "name": "Kolektor Catatan", "desc": "Buat 20 note", "icon": "📚", "condition": "notes_created >= 20" },
+  { "key": "pomodoro_1", "name": "Fokus!", "desc": "Selesaikan sesi Pomodoro pertama", "icon": "⏱️", "condition": "pomodoros_completed >= 1" },
+  { "key": "pomodoro_10", "name": "Master Fokus", "desc": "Selesaikan 10 sesi Pomodoro", "icon": "🎯", "condition": "pomodoros_completed >= 10" },
+  { "key": "streak_3", "name": "Konsisten!", "desc": "Login 3 hari berturut-turut", "icon": "🔥", "condition": "streak >= 3" },
+  { "key": "streak_7", "name": "Tidak Terhentikan!", "desc": "Login 7 hari berturut-turut", "icon": "💎", "condition": "streak >= 7" },
+  { "key": "evolve_1", "name": "Evolusi!", "desc": "Pokémon-mu berevolusi pertama kali", "icon": "✨", "condition": "evolution_stage >= 1" },
+  { "key": "evolve_2", "name": "Bentuk Terakhir!", "desc": "Pokémon-mu mencapai evolusi final", "icon": "🌟", "condition": "evolution_stage >= 2" },
+  { "key": "level_10", "name": "Level 10!", "desc": "Capai level 10", "icon": "🎖️", "condition": "pet_level >= 10" },
+  { "key": "level_25", "name": "Level 25!", "desc": "Capai level 25", "icon": "🏅", "condition": "pet_level >= 25" },
+  { "key": "level_50", "name": "Level 50!", "desc": "Capai level 50", "icon": "👑", "condition": "pet_level >= 50" },
+  { "key": "feed_10", "name": "Chef Pokémon", "desc": "Beri makan 10 kali", "icon": "🍎", "condition": "feed_count >= 10" },
+  { "key": "happy_max", "name": "Pokémon Paling Bahagia", "desc": "Capai happiness 100", "icon": "💖", "condition": "happiness >= 100" }
+]

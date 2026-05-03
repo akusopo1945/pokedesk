@@ -1,0 +1,88 @@
+{
+  "starters": [
+    {
+      "id": 1,
+      "name": "Bulbasaur",
+      "type": "grass",
+      "emoji": "🌱",
+      "color": "#22c55e",
+      "evolutions": [
+        { "stage": 0, "name": "Bulbasaur", "level": 1, "emoji": "🌱" },
+        { "stage": 1, "name": "Ivysaur", "level": 16, "emoji": "🌿" },
+        { "stage": 2, "name": "Venusaur", "level": 36, "emoji": "🌳" }
+      ],
+      "moods": {
+        "happy": "😊",
+        "sad": "😢",
+        "sleepy": "😴",
+        "excited": "🤩",
+        "hungry": "😋",
+        "annoyed": "😤"
+      },
+      "idle_messages": [
+        "Sedang menyerap sinar matahari...",
+        "Bulbasaur menatapmu dengan penuh semangat!",
+        "Daun di punggungnya berkilau cerah.",
+        "Bulbasaur bermain-main di rumput."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Charmander",
+      "type": "fire",
+      "emoji": "🔥",
+      "color": "#f97316",
+      "evolutions": [
+        { "stage": 0, "name": "Charmander", "level": 1, "emoji": "🔥" },
+        { "stage": 1, "name": "Charmeleon", "level": 16, "emoji": "🔥" },
+        { "stage": 2, "name": "Charizard", "level": 36, "emoji": "🐉" }
+      ],
+      "moods": {
+        "happy": "😊",
+        "sad": "😢",
+        "sleepy": "😴",
+        "excited": "🤩",
+        "hungry": "😋",
+        "annoyed": "😤"
+      },
+      "idle_messages": [
+        "Api di ekornya menyala terang!",
+        "Charmander menghangatkan tangannya.",
+        "Charmander tersenyum ke arahmu!",
+        "Ekor apinya menari-nari riang."
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Squirtle",
+      "type": "water",
+      "emoji": "💧",
+      "color": "#3b82f6",
+      "evolutions": [
+        { "stage": 0, "name": "Squirtle", "level": 1, "emoji": "💧" },
+        { "stage": 1, "name": "Wartortle", "level": 16, "emoji": "🌊" },
+        { "stage": 2, "name": "Blastoise", "level": 36, "emoji": "🐢" }
+      ],
+      "moods": {
+        "happy": "😊",
+        "sad": "😢",
+        "sleepy": "😴",
+        "excited": "🤩",
+        "hungry": "😋",
+        "annoyed": "😤"
+      },
+      "idle_messages": [
+        "Squirtle bermain air dengan riang!",
+        "Cangkangnya berkilau terkena cahaya.",
+        "Squirtle menyemprotkan air kecil!",
+        "Squirtle sedang bersantai di air."
+      ]
+    }
+  ],
+  "berries": [
+    { "id": "oran", "name": "Oran Berry", "emoji": "🫐", "hunger_restore": 20, "happiness_bonus": 5 },
+    { "id": "pecha", "name": "Pecha Berry", "emoji": "🍑", "hunger_restore": 15, "happiness_bonus": 8 },
+    { "id": "rawst", "name": "Rawst Berry", "emoji": "🫒", "hunger_restore": 25, "happiness_bonus": 3 },
+    { "id": "sitrus", "name": "Sitrus Berry", "emoji": "🍋", "hunger_restore": 35, "happiness_bonus": 10 }
+  ]
+}
