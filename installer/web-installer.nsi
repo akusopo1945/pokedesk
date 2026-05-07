@@ -35,6 +35,44 @@ BrandingText "PokeDesk Installer v0.1.0"
 !insertmacro MUI_LANGUAGE "English"
 !insertmacro MUI_LANGUAGE "Indonesian"
 
+; ─── Pre-Install Validation ───
+Function .onInit
+  ; Cek apakah PokeDesk sudah terinstal
+  ReadRegStr $0 HKCU "Software\PokeDesk" "InstallDir"
+
+  ${If} $0 != ""
+    ; Baca versi terinstall
+    ReadRegStr $1 HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\PokeDesk" "DisplayVersion"
+
+    ${If} $1 == ""
+      StrCpy $1 "unknown"
+    ${EndIf}
+
+    ; Tampilkan dialog pilihan
+    MessageBox MB_YESNOCANCEL|MB_ICONQUESTION "PokeDesk sudah terinstal di $0 (v$1). Data pet/notes/tasks aman. Yes=Repair, No=Update, Cancel=Batal" IDYES do_action IDCANCEL do_cancel
+    Goto do_action
+
+    do_action:
+      StrCpy $INSTDIR $0
+
+      ; Jalankan uninstaller silent
+      DetailPrint "Menghapus versi lama..."
+      ExecWait '"$0\Uninstall.exe" /S _?=$0' $2
+
+      ${If} $2 != "0"
+        MessageBox MB_OK|MB_ICONEXCLAMATION "Gagal menghapus versi lama. Silakan uninstall manual dari Control Panel."
+        Abort
+      ${EndIf}
+
+      Goto done
+
+    do_cancel:
+      Abort
+  ${EndIf}
+
+  done:
+FunctionEnd
+
 Section "Install"
   ; Run batch install script
   DetailPrint "Downloading and installing PokeDesk..."
