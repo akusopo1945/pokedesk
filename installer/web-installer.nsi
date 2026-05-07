@@ -6,7 +6,7 @@
 !include "FileFunc.nsh"
 
 Name "PokeDesk"
-OutFile "PokeDesk-Setup.exe"
+OutFile "PokeDesk-WebInstaller.exe"
 InstallDir "$PROGRAMFILES\PokeDesk"
 InstallDirRegKey HKCU "Software\PokeDesk" "InstallDir"
 RequestExecutionLevel admin
@@ -39,30 +39,24 @@ Section "Install"
   ; Create temp directory
   CreateDirectory "$TEMP\pokedesk-install"
 
-  ; Download app package using NSISdl
-  DetailPrint "Downloading PokeDesk (66MB)..."
-  NSISdl::download "https://github.com/akusopo1945/pokedesk/releases/download/v0.1.0/PokeDesk-0.1.0.7z" "$TEMP\pokedesk-install\app.7z"
-  Pop $0
+  ; Download and extract using batch wrapper
+  DetailPrint "Downloading and installing PokeDesk..."
+  ExecWait '"$EXEDIR\install.bat" "$INSTDIR"' $0
 
-  ${If} $0 != "success"
-    MessageBox MB_OK|MB_ICONEXCLAMATION "Download failed. Please check your internet connection and try again.$\r$\n$\r$\nError: $0"
+  ${If} $0 != "0"
+    MessageBox MB_OK|MB_ICONEXCLAMATION "Installation failed. Please check your internet connection and try again."
     Abort
   ${EndIf}
 
-  ; Extract using 7za (bundled)
-  DetailPrint "Extracting files..."
+  ; Verify installation
+  IfFileExists "$INSTDIR\PokeDesk.exe" 0 install_failed
+    goto install_ok
 
-  IfFileExists "$EXEDIR\7za.exe" 0 extract_error
-    ExecWait '"$EXEDIR\7za.exe" x "$TEMP\pokedesk-install\app.7z" -o"$INSTDIR" -y' $0
-    ${If} $0 == "0"
-      goto extract_done
-    ${EndIf}
-
-  extract_error:
-    MessageBox MB_OK|MB_ICONEXCLAMATION "Extraction failed. Please ensure 7za.exe is in the installer folder."
+  install_failed:
+    MessageBox MB_OK|MB_ICONEXCLAMATION "Installation failed. PokeDesk.exe not found."
     Abort
 
-  extract_done:
+  install_ok:
 
   ; Create shortcuts
   DetailPrint "Creating shortcuts..."
