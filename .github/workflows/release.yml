@@ -1,0 +1,149 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  check-release:
+    runs-on: ubuntu-latest
+    outputs:
+      is_release: ${{ steps.check.outputs.is_release }}
+      release_type: ${{ steps.check.outputs.release_type }}
+      version: ${{ steps.check.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check commit message
+        id: check
+        run: |
+          MSG=$(git log -1 --pretty=%B)
+          echo "Commit message: $MSG"
+
+          if [[ "$MSG" == *"[stable]"* ]]; then
+            echo "release_type=stable" >> $GITHUB_OUTPUT
+            echo "is_release=true" >> $GITHUB_OUTPUT
+            # Extract version: "release: v0.2.0" → "v0.2.0"
+            VERSION=$(echo "$MSG" | grep -oP 'v\d+\.\d+\.\d+' || echo "")
+            if [ -z "$VERSION" ]; then
+              VERSION="v$(node -p "require('./package.json').version")"
+            fi
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+          elif [[ "$MSG" == *"[beta]"* ]]; then
+            echo "release_type=beta" >> $GITHUB_OUTPUT
+            echo "is_release=true" >> $GITHUB_OUTPUT
+            SHORT_SHA=$(git rev-parse --short HEAD)
+            echo "version=beta-$SHORT_SHA" >> $GITHUB_OUTPUT
+          else
+            echo "is_release=false" >> $GITHUB_OUTPUT
+          fi
+
+  build:
+    needs: check-release
+    if: needs.check-release.outputs.is_release == 'true'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build web assets
+        run: pnpm run build:web
+
+      - name: Build portable
+        run: npx electron-builder --win portable --x64
+
+      - name: Compress to 7z
+        run: |
+          7z a -t7z -mx=9 "dist-installer/PokeDesk-${{ needs.check-release.outputs.version }}.7z" "dist-installer/win-unpacked/*"
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$LAST_TAG" ]; then
+            CHANGELOG=$(git log --pretty="- %s" HEAD~10..HEAD)
+          else
+            CHANGELOG=$(git log --pretty="- %s" ${LAST_TAG}..HEAD~1)
+          fi
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.check-release.outputs.version }}
+          name: "PokeDesk ${{ needs.check-release.outputs.version }}"
+          body: |
+            ## What's New
+
+            ${{ steps.changelog.outputs.changelog }}
+
+            ## Download
+
+            - **Web Installer**: `PokeDesk-Setup.exe` (download + install)
+            - **Full Package**: `PokeDesk-${{ needs.check-release.outputs.version }}.7z` (manual install)
+          prerelease: ${{ needs.check-release.outputs.release_type == 'beta' }}
+          files: |
+            dist-installer/PokeDesk-${{ needs.check-release.outputs.version }}.7z
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  update-version:
+    needs: [check-release, build]
+    if: needs.check-release.outputs.release_type == 'stable'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update version.json
+        run: |
+          VERSION="${{ needs.check-release.outputs.version }}"
+          VERSION_NUM="${VERSION#v}"
+
+          # Generate changelog
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$LAST_TAG" ]; then
+            CHANGELOG=$(git log --pretty="- %s" HEAD~10..HEAD | jq -R -s 'split("\n") | map(select(length > 0))')
+          else
+            CHANGELOG=$(git log --pretty="- %s" ${LAST_TAG}..HEAD~1 | jq -R -s 'split("\n") | map(select(length > 0))')
+          fi
+
+          cat > version.json << EOF
+          {
+            "latest": {
+              "version": "$VERSION_NUM",
+              "releaseDate": "$(date +%Y-%m-%d)",
+              "downloadUrls": {
+                "github": "https://github.com/pokedesk/pokedesk/releases/download/$VERSION/PokeDesk-$VERSION.7z",
+                "googleDrive": ""
+              },
+              "changelog": $CHANGELOG,
+              "isStable": true
+            }
+          }
+          EOF
+
+      - name: Commit version.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add version.json
+          git commit -m "chore: update version.json to ${{ needs.check-release.outputs.version }}"
+          git push

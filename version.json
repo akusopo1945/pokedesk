@@ -1,0 +1,19 @@
+{
+  "latest": {
+    "version": "0.1.0",
+    "releaseDate": "2026-05-06",
+    "downloadUrls": {
+      "github": "https://github.com/pokedesk/pokedesk/releases/download/v0.1.0/PokeDesk-0.1.0.7z",
+      "googleDrive": ""
+    },
+    "changelog": [
+      "Initial release",
+      "Virtual Pet dengan 3 starter Pokemon",
+      "Notes, Tasks, Pomodoro Timer",
+      "Achievement system",
+      "Floating Pet Widget dengan AI Chat (MiMo)",
+      "Web installer + auto-update"
+    ],
+    "isStable": true
+  }
+}

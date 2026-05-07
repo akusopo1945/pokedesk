@@ -11,6 +11,8 @@ files:
   - electron/**/*
   - data/**/*
   - package.json
+  - "!node_modules/**/*"
+  - "node_modules/{react,react-dom,zustand}/**/*"
 
 extraResources:
   - from: data/
