@@ -6,7 +6,7 @@
 !include "FileFunc.nsh"
 
 Name "PokeDesk"
-OutFile "PokeDesk-WebInstaller.exe"
+OutFile "PokeDesk-Setup.exe"
 InstallDir "$PROGRAMFILES\PokeDesk"
 InstallDirRegKey HKCU "Software\PokeDesk" "InstallDir"
 RequestExecutionLevel admin
@@ -36,27 +36,24 @@ BrandingText "PokeDesk Installer v0.1.0"
 !insertmacro MUI_LANGUAGE "Indonesian"
 
 Section "Install"
-  ; Create temp directory
-  CreateDirectory "$TEMP\pokedesk-install"
-
-  ; Download and extract using batch wrapper
+  ; Run batch install script
   DetailPrint "Downloading and installing PokeDesk..."
   ExecWait '"$EXEDIR\install.bat" "$INSTDIR"' $0
 
   ${If} $0 != "0"
-    MessageBox MB_OK|MB_ICONEXCLAMATION "Installation failed. Please check your internet connection and try again."
+    MessageBox MB_OK|MB_ICONEXCLAMATION "Installation failed. Check internet connection."
     Abort
   ${EndIf}
 
   ; Verify installation
   IfFileExists "$INSTDIR\PokeDesk.exe" 0 install_failed
-    goto install_ok
+    goto extract_done
 
   install_failed:
     MessageBox MB_OK|MB_ICONEXCLAMATION "Installation failed. PokeDesk.exe not found."
     Abort
 
-  install_ok:
+  extract_done:
 
   ; Create shortcuts
   DetailPrint "Creating shortcuts..."

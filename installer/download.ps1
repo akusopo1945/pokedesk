@@ -4,10 +4,10 @@
 $ErrorActionPreference = "Stop"
 
 $tempDir = "$env:TEMP\pokedesk-install"
-$outputFile = "$tempDir\app.zip"
+$outputFile = "$tempDir\app.7z"
 
 # URLs — update setiap release
-$githubUrl = "https://github.com/akusopo1945/pokedesk/releases/download/v0.1.0/PokeDesk-0.1.0.zip"
+$githubUrl = "https://github.com/akusopo1945/pokedesk/releases/download/v0.1.0/PokeDesk-0.1.0.7z"
 $googleDriveUrl = ""
 
 # Create temp directory
