@@ -2,11 +2,12 @@ import React, { useEffect, useRef } from 'react';
 import { useTimerStore } from '../../stores/timerStore';
 import { usePetStore } from '../../stores/petStore';
 import { EXP_REWARDS } from '../../services/expService';
+import { TIMER_MODES } from '../../constants';
 
 const MODE_CONFIG = {
-  work: { label: 'Fokus', color: 'from-red-500 to-orange-500', ring: '#ef4444', emoji: '🔥' },
-  short_break: { label: 'Istirahat', color: 'from-green-500 to-emerald-500', ring: '#22c55e', emoji: '☕' },
-  long_break: { label: 'Istirahat Panjang', color: 'from-blue-500 to-cyan-500', ring: '#3b82f6', emoji: '🌴' },
+  work: TIMER_MODES.WORK,
+  short_break: TIMER_MODES.SHORT_BREAK,
+  long_break: TIMER_MODES.LONG_BREAK,
 };
 
 export default function PomodoroTimer() {

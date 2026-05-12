@@ -27,6 +27,16 @@ function getCurrentForm(pokemonData, level) {
   return pokemonData.evolutions[stage];
 }
 
+function getTodayString() {
+  return new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+}
+
+function getYesterdayString() {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  return yesterday.toISOString().split('T')[0];
+}
+
 export const usePetStore = create(
   persist(
     (set, get) => ({
@@ -45,6 +55,11 @@ export const usePetStore = create(
       feedCount: 0,
       lastInteraction: Date.now(),
       createdAt: null,
+
+      // Streak state
+      streakDays: 0,
+      lastLoginDate: null,
+      totalLoginDays: 0,
 
       // Computed
       getExpToNextLevel: () => {
@@ -73,6 +88,7 @@ export const usePetStore = create(
 
       // Actions
       initialize: (petName, starterPokemon) => {
+        const today = getTodayString();
         set({
           isInitialized: true,
           petName,
@@ -88,7 +104,55 @@ export const usePetStore = create(
           feedCount: 0,
           lastInteraction: Date.now(),
           createdAt: Date.now(),
+          streakDays: 1,
+          lastLoginDate: today,
+          totalLoginDays: 1,
         });
+      },
+
+      checkDailyStreak: () => {
+        const { lastLoginDate, streakDays, totalLoginDays, isInitialized } = get();
+        if (!isInitialized) return { isNewDay: false, streakBonus: 0 };
+
+        const today = getTodayString();
+        const yesterday = getYesterdayString();
+
+        // Sudah login hari ini
+        if (lastLoginDate === today) {
+          return { isNewDay: false, streakBonus: 0 };
+        }
+
+        let newStreak = streakDays;
+        let streakBonus = 0;
+
+        if (lastLoginDate === yesterday) {
+          // Streak berlanjut
+          newStreak = streakDays + 1;
+        } else {
+          // Streak reset
+          newStreak = 1;
+        }
+
+        // Hitung bonus berdasarkan streak
+        if (newStreak >= 30) {
+          streakBonus = 150; // 3x STREAK_BONUS
+        } else if (newStreak >= 14) {
+          streakBonus = 100; // 2x STREAK_BONUS
+        } else if (newStreak >= 7) {
+          streakBonus = 50; // STREAK_BONUS
+        } else if (newStreak >= 3) {
+          streakBonus = 20;
+        } else {
+          streakBonus = 5; // DAILY_LOGIN
+        }
+
+        set({
+          streakDays: newStreak,
+          lastLoginDate: today,
+          totalLoginDays: totalLoginDays + 1,
+        });
+
+        return { isNewDay: true, streakBonus, newStreak };
       },
 
       addExp: (amount) => {
@@ -178,6 +242,9 @@ export const usePetStore = create(
         feedCount: state.feedCount,
         lastInteraction: state.lastInteraction,
         createdAt: state.createdAt,
+        streakDays: state.streakDays,
+        lastLoginDate: state.lastLoginDate,
+        totalLoginDays: state.totalLoginDays,
       }),
     }
   )

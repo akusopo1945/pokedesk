@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { usePetStore } from '../../stores/petStore';
 import { EXP_REWARDS } from '../../services/expService';
+import { MOOD_EMOJIS, MOOD_LABELS, MOOD_COLORS } from '../../constants';
 import berriesData from '../../../data/pokemon.json';
 
 const BERRIES = berriesData.berries;
@@ -27,33 +28,6 @@ export default function PetPanel() {
 
   const form = getCurrentForm();
   const mood = getMood();
-
-  const moodEmojis = {
-    happy: '😊',
-    sad: '😢',
-    sleepy: '😴',
-    excited: '🤩',
-    hungry: '😋',
-    annoyed: '😤',
-  };
-
-  const moodLabels = {
-    happy: 'Senang',
-    sad: 'Sedih',
-    sleepy: 'Mengantuk',
-    excited: 'Bersemangat!',
-    hungry: 'Lapar',
-    annoyed: 'Kesal',
-  };
-
-  const moodColors = {
-    happy: 'text-green-400',
-    sad: 'text-blue-400',
-    sleepy: 'text-purple-400',
-    excited: 'text-yellow-400',
-    hungry: 'text-orange-400',
-    annoyed: 'text-red-400',
-  };
 
   // Idle message rotation
   useEffect(() => {
@@ -113,7 +87,7 @@ export default function PetPanel() {
           {form.emoji}
         </div>
         <div className="absolute -bottom-2 left-1/2 -translate-x-1/2">
-          <span className={`text-3xl`}>{moodEmojis[mood]}</span>
+          <span className={`text-3xl`}>{MOOD_EMOJIS[mood]}</span>
         </div>
       </div>
 
@@ -124,7 +98,7 @@ export default function PetPanel() {
           <span className="text-pokedex-muted">Lv.</span>
           <span className="text-pokedex-yellow font-bold">{level}</span>
           <span className="text-pokedex-muted mx-1">•</span>
-          <span className={moodColors[mood]}>{moodLabels[mood]}</span>
+          <span className={MOOD_COLORS[mood]}>{MOOD_LABELS[mood]}</span>
         </div>
 
         {/* EXP Bar */}

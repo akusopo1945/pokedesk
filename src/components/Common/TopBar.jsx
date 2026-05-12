@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { usePetStore } from '../../stores/petStore';
 import { useTaskStore } from '../../stores/taskStore';
 import { useNoteStore } from '../../stores/noteStore';
+import { MOOD_EMOJIS } from '../../constants';
 import UpdateBanner from './UpdateBanner';
 
 export default function TopBar({ updateInfo, onDismissUpdate }) {
@@ -19,15 +20,6 @@ export default function TopBar({ updateInfo, onDismissUpdate }) {
   const mood = getMood();
   const expProgress = getExpProgress();
 
-  const moodEmojis = {
-    happy: '😊',
-    sad: '😢',
-    sleepy: '😴',
-    excited: '🤩',
-    hungry: '😋',
-    annoyed: '😤',
-  };
-
   const handleToggleFullscreen = async () => {
     const result = await window.electronAPI?.toggleFullscreen();
     setIsFullscreen(result);
@@ -44,7 +36,7 @@ export default function TopBar({ updateInfo, onDismissUpdate }) {
           <div className="flex items-center gap-2">
             <span className="font-bold text-white text-sm">{petName}</span>
             <span className="text-pokedex-yellow pixel-text text-[8px]">Lv.{level}</span>
-            <span className="text-sm">{moodEmojis[mood]}</span>
+            <span className="text-sm">{MOOD_EMOJIS[mood]}</span>
           </div>
           <div className="w-32 h-1.5 bg-pokedex-surface rounded-full mt-1 overflow-hidden">
             <div

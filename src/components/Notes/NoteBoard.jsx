@@ -1,24 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNoteStore } from '../../stores/noteStore';
 import { usePetStore } from '../../stores/petStore';
 import { EXP_REWARDS } from '../../services/expService';
+import { NOTE_COLORS } from '../../constants';
 
-const COLORS = [
-  { id: '#FACC15', name: 'Kuning' },
-  { id: '#FB923C', name: 'Oranye' },
-  { id: '#F87171', name: 'Merah' },
-  { id: '#A78BFA', name: 'Ungu' },
-  { id: '#60A5FA', name: 'Biru' },
-  { id: '#34D399', name: 'Hijau' },
-  { id: '#F472B6', name: 'Pink' },
-];
+const COLORS = NOTE_COLORS;
 
 export default function NoteBoard() {
-  const notes = useNoteStore((s) => s.getSortedNotes());
+  const notes = useNoteStore((s) => s.getFilteredNotes());
+  const allTags = useNoteStore((s) => s.getAllTags());
+  const activeTagFilter = useNoteStore((s) => s.activeTagFilter);
   const addNote = useNoteStore((s) => s.addNote);
   const updateNote = useNoteStore((s) => s.updateNote);
   const deleteNote = useNoteStore((s) => s.deleteNote);
   const togglePin = useNoteStore((s) => s.togglePin);
+  const addTagToNote = useNoteStore((s) => s.addTagToNote);
+  const removeTagFromNote = useNoteStore((s) => s.removeTagFromNote);
+  const setActiveTagFilter = useNoteStore((s) => s.setActiveTagFilter);
   const addExp = usePetStore((s) => s.addExp);
 
   const [editingNote, setEditingNote] = useState(null);
@@ -26,13 +24,18 @@ export default function NoteBoard() {
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
   const [newColor, setNewColor] = useState(COLORS[0].id);
+  const [newTags, setNewTags] = useState([]);
+  const [tagInput, setTagInput] = useState('');
+
+  const tagInputRef = useRef(null);
 
   const handleCreate = () => {
     if (!newTitle.trim() && !newContent.trim()) return;
-    addNote(newTitle.trim() || 'Catatan Baru', newContent.trim(), newColor);
+    addNote(newTitle.trim() || 'Catatan Baru', newContent.trim(), newColor, newTags);
     addExp(EXP_REWARDS.NOTE_CREATE);
     setNewTitle('');
     setNewContent('');
+    setNewTags([]);
     setIsCreating(false);
   };
 
@@ -44,6 +47,43 @@ export default function NoteBoard() {
       color: editingNote.color,
     });
     setEditingNote(null);
+  };
+
+  const handleAddTag = (isEdit = false) => {
+    const tag = tagInput.trim().toLowerCase();
+    if (!tag) return;
+
+    if (isEdit && editingNote) {
+      addTagToNote(editingNote.id, tag);
+      setEditingNote((prev) => ({
+        ...prev,
+        tags: [...new Set([...prev.tags, tag])],
+      }));
+    } else {
+      if (!newTags.includes(tag)) {
+        setNewTags([...newTags, tag]);
+      }
+    }
+    setTagInput('');
+  };
+
+  const handleRemoveTag = (tag, isEdit = false) => {
+    if (isEdit && editingNote) {
+      removeTagFromNote(editingNote.id, tag);
+      setEditingNote((prev) => ({
+        ...prev,
+        tags: prev.tags.filter((t) => t !== tag),
+      }));
+    } else {
+      setNewTags(newTags.filter((t) => t !== tag));
+    }
+  };
+
+  const handleTagKeyDown = (e, isEdit = false) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddTag(isEdit);
+    }
   };
 
   return (
@@ -68,6 +108,36 @@ export default function NoteBoard() {
             <span>+</span> Note Baru
           </button>
         </div>
+
+        {/* Tag Filter */}
+        {allTags.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            <span className="text-xs text-pokedex-muted">Filter:</span>
+            <button
+              onClick={() => setActiveTagFilter(null)}
+              className={`text-xs px-2.5 py-1 rounded-full transition-colors ${
+                !activeTagFilter
+                  ? 'bg-pokedex-yellow text-pokedex-bg font-semibold'
+                  : 'bg-pokedex-surface/50 text-pokedex-muted hover:text-white'
+              }`}
+            >
+              Semua
+            </button>
+            {allTags.map((tag) => (
+              <button
+                key={tag}
+                onClick={() => setActiveTagFilter(activeTagFilter === tag ? null : tag)}
+                className={`text-xs px-2.5 py-1 rounded-full transition-colors ${
+                  activeTagFilter === tag
+                    ? 'bg-pokedex-yellow text-pokedex-bg font-semibold'
+                    : 'bg-pokedex-surface/50 text-pokedex-muted hover:text-white'
+                }`}
+              >
+                🏷️ {tag}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Create Note Modal */}
         {isCreating && (
@@ -98,6 +168,42 @@ export default function NoteBoard() {
                   placeholder:text-pokedex-muted"
               />
 
+              {/* Tags */}
+              <div className="mb-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs text-pokedex-muted">Tags:</span>
+                  <div className="flex flex-wrap gap-1">
+                    {newTags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full
+                          bg-pokedex-yellow/20 text-pokedex-yellow"
+                      >
+                        {tag}
+                        <button
+                          onClick={() => handleRemoveTag(tag)}
+                          className="hover:text-white"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <input
+                  ref={tagInputRef}
+                  type="text"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={(e) => handleTagKeyDown(e)}
+                  placeholder="Tambah tag..."
+                  className="w-full bg-pokedex-surface border border-pokedex-surface rounded-lg
+                    px-3 py-1.5 text-white text-xs
+                    focus:border-pokedex-yellow focus:outline-none transition-colors
+                    placeholder:text-pokedex-muted"
+                />
+              </div>
+
               {/* Color picker */}
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-xs text-pokedex-muted">Warna:</span>
@@ -115,7 +221,7 @@ export default function NoteBoard() {
 
               <div className="flex gap-3 justify-end">
                 <button
-                  onClick={() => setIsCreating(false)}
+                  onClick={() => { setIsCreating(false); setNewTags([]); }}
                   className="px-4 py-2 rounded-xl text-pokedex-muted hover:text-white transition-colors"
                 >
                   Batal
@@ -156,6 +262,41 @@ export default function NoteBoard() {
                   focus:border-pokedex-yellow focus:outline-none transition-colors"
               />
 
+              {/* Tags */}
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs text-pokedex-muted">Tags:</span>
+                  <div className="flex flex-wrap gap-1">
+                    {editingNote.tags?.map((tag) => (
+                      <span
+                        key={tag}
+                        className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full
+                          bg-pokedex-yellow/20 text-pokedex-yellow"
+                      >
+                        {tag}
+                        <button
+                          onClick={() => handleRemoveTag(tag, true)}
+                          className="hover:text-white"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <input
+                  type="text"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={(e) => handleTagKeyDown(e, true)}
+                  placeholder="Tambah tag..."
+                  className="w-full bg-pokedex-surface border border-pokedex-surface rounded-lg
+                    px-3 py-1.5 text-white text-xs
+                    focus:border-pokedex-yellow focus:outline-none transition-colors
+                    placeholder:text-pokedex-muted"
+                />
+              </div>
+
               <div className="flex gap-3 justify-end">
                 <button
                   onClick={() => setEditingNote(null)}
@@ -179,9 +320,11 @@ export default function NoteBoard() {
         {notes.length === 0 ? (
           <div className="text-center py-20">
             <div className="text-5xl mb-4">📋</div>
-            <p className="text-pokedex-muted">Belum ada catatan</p>
+            <p className="text-pokedex-muted">
+              {activeTagFilter ? `Tidak ada catatan dengan tag "${activeTagFilter}"` : 'Belum ada catatan'}
+            </p>
             <p className="text-pokedex-muted text-sm mt-1">
-              Buat catatan pertamamu untuk mendapat +{EXP_REWARDS.NOTE_CREATE} EXP!
+              {!activeTagFilter && `Buat catatan pertamamu untuk mendapat +${EXP_REWARDS.NOTE_CREATE} EXP!`}
             </p>
           </div>
         ) : (
@@ -221,6 +364,22 @@ export default function NoteBoard() {
                 <p className="text-pokedex-muted text-xs line-clamp-4 whitespace-pre-wrap">
                   {note.content || 'Kosong...'}
                 </p>
+
+                {/* Tags */}
+                {note.tags && note.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {note.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="text-[9px] px-1.5 py-0.5 rounded-full
+                          bg-pokedex-surface/50 text-pokedex-muted"
+                      >
+                        🏷️ {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
                 <div className="mt-3 text-[10px] text-pokedex-muted">
                   {new Date(note.updatedAt).toLocaleDateString('id-ID', {
                     day: 'numeric',

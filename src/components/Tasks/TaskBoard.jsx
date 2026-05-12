@@ -2,18 +2,9 @@ import React, { useState } from 'react';
 import { useTaskStore } from '../../stores/taskStore';
 import { usePetStore } from '../../stores/petStore';
 import { EXP_REWARDS, calculatePriorityBonus } from '../../services/expService';
+import { TASK_COLUMNS, PRIORITIES } from '../../constants';
 
-const COLUMNS = [
-  { id: 'todo', label: 'To Do', icon: '📋', color: 'border-blue-500' },
-  { id: 'in_progress', label: 'In Progress', icon: '🔄', color: 'border-yellow-500' },
-  { id: 'done', label: 'Done', icon: '✅', color: 'border-green-500' },
-];
-
-const PRIORITIES = [
-  { id: 'high', label: 'Tinggi', color: 'bg-red-500', emoji: '🔴' },
-  { id: 'medium', label: 'Sedang', color: 'bg-yellow-500', emoji: '🟡' },
-  { id: 'low', label: 'Rendah', color: 'bg-green-500', emoji: '🟢' },
-];
+const COLUMNS = TASK_COLUMNS;
 
 export default function TaskBoard() {
   const tasks = useTaskStore((s) => s.tasks);
